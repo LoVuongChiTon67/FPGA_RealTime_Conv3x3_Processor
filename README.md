@@ -37,9 +37,15 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 | 4 | `ouput_data.hex` | Dữ liệu đầu ra | File chứa kết quả sau khi Convolution được ghi ra từ top_module trong quá trình mô phỏng. |
 | 5 | `image_source/`  | Thư mục ảnh gốc | Chứa các ảnh mẫu (Input) và ảnh sau khi xử lý (Output). |
 
-## 4. Luồng hoạt động hệ thống (System Workflow)
+## 4. Chi tiết chân tín hiệu I/O từng module (Interface Specifications)
+## 5. Luồng hoạt động hệ thống (System Workflow)
 
 ### 1. **Chuẩn bị và nạp dữ liệu (Input Stage)**
 * **Tiền xử lý (Python)**: Ảnh gốc (png) được đưa qua script image_to_hex.py để chuyển đổi sang ma trận giá trị pixel 8-bit (0-255). Kết quả được lưu vào file input_data.hex.
 
 * **Nạp dữ liệu**: Trong quá trình mô phỏng (testbench_prj.v), file .hex này được đọc vào và đẩy tuần tự từng pixel qua cổng i_pixel của top_module tại mỗi sườn dương của xung clock (posedge i_clk).
+
+### 2. **Xử lý Convolution (Processing Stage)**
+* **Đệm dữ liệu**: Module linerbuffer.v nhận các pixel đơn lẻ, lưu trữ và dịch chuyển chúng qua các tầng ghi để tạo ra 2 dòng đệm (Line buffers).
+* **Tạo cửa sổ 3x3**:  Module window_3x3.v lấy dữ liệu từ linerbuffer và pixel hiện tại để trích xuất ra một cửa sổ ma trận $3 \times 3$ (gồm 9 giá trị pixel p11 đến p33).
+* **Tính toán nhân chập**: Cửa sổ $3 \times 3$ này được gửi tới một trong hai module cnn_sharpening.v hoặc cnn_blur.v (tùy vào chế độ mode). Tại đây, các pixel sẽ được nhân với hệ số Kernel tương ứng và cộng dồn qua cấu trúc cây cộng (Adder Tree) để tạo ra pixel kết quả cuối cùng.
