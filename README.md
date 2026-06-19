@@ -71,6 +71,7 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 
 ### 4.4 `cnn_sharpening`
 | # | Gate | Type | Bit-width | Mô tả |
+|---|--------|------|-----|----------|
 | 1 | `i_clk` | Input | 1-bit | Xung clock hệ thông |
 | 2 | `i_reset` | Input | 1-bit | Có vai trò khởi đọng toàn bộ mạch (active-high) |
 | 3 | `data_valid_in` | Input | 1-bit | Báo dữ liệu đầu vào hợp lệ |
@@ -81,6 +82,7 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 ### 4.5 `cnn_blur` 
 
 | # | Gate | Type | Bit-width | Mô tả |
+|---|--------|------|-----|----------|
 | 1 | `i_clk` | Input | 1-bit | Xung clock hệ thông |
 | 2 | `i_reset` | Input | 1-bit | Có vai trò khởi đọng toàn bộ mạch (active-high) |
 | 3 | `data_valid_in` | Input | 1-bit | Báo dữ liệu đầu vào hợp lệ |
