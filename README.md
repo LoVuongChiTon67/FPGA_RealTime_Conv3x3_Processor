@@ -68,7 +68,9 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 | 3 | `q1`, `q2`, `q3` | Input | 8-bit | Dữ liệu đầu vào từ 3 hàng (Line Buffer)|
 | 4 | `data_valid_in` | Input | 1-bit | Báo hiệu dữ liệu đầu vào hợp lệ |
 | 5 | `p11...p33` | Input | 8-bit(x9) | 9 pixel tạo thành ma trận cửa sổ 3x3 |
+
 ### 4.4 `cnn_sharpening`
+
 ### 4.5 `cnn_blur` 
 
 ## 5. Luồng hoạt động hệ thống (System Workflow)
