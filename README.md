@@ -42,7 +42,13 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 
 | # | Gate | Type | Bit-width | Mô tả |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 2 | Đóng vai trò là clock để chạy chương trình |
+| 1 | `i_clk` | Input | 1-bit | Đóng vai trò là clock để chạy chương trình |
+| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi động lại toàn bộ mạch (active-high) |
+| 3 | `i_pixel` | Input | 8-bit | Dữ liệu pixel đầu vào (grayscale) |
+| 4 | `data_valid_in` | Input | 1-bit | Báo hiệu dữ liệu đầu vào hợp lệ |
+| 5 | `mode` | Input | 1-bit | Chọn chế độ: 0 (Sharpen), 1 (Blur) |
+| 6 | `o_pixel` | Output | 8-bit | Kết quả pixel đã xử lý |
+| 7 | `data_valid_out` | Output | 1-bit | Báo hiệu dữ liệu đầu ra hợp lệ |
 ### 4.2 `line_buffer`
 ### 4.3 `window_3x3`
 ### 4.4 `cnn_sharpening`
