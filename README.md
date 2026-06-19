@@ -61,6 +61,13 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 | 5 | `q3` | Output | 8-bit | Dữ liệu dòng dưới (đã trễ 2 dòng) |
 
 ### 4.3 `window_3x3`
+| # | Gate | Type | Bit-width | Mô tả |
+|---|--------|------|-----|----------|
+| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thống |
+| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi động lại toàn bộ mạch (active-high) |
+| 3 | `q1`, `q2`, `q3` | Input | 8-bit | Dữ liệu đầu vào từ 3 hàng (Line Buffer)|
+| 4 | `data_valid_in` | Input | 1-bit | Báo hiệu dữ liệu đầu vào hợp lệ |
+| 5 | `p11...p33` | Input | 8-bit(x9) | 9 pixel tạo thành ma trận cửa sổ 3x3 |
 ### 4.4 `cnn_sharpening`
 ### 4.5 `cnn_blur` 
 
