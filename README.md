@@ -114,3 +114,9 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 ### 3. **Xuất và Tái tạo ảnh (Output Stage)**
 * **Đồng bộ hoá**: Kết quả sau khi tính toán được đưa qua output_controller, tại đây tín hiệu data_valid_out được kích hoạt để báo hiệu rằng dữ liệu tại o_pixel đã sẵn sàng.
 * **Hậu xử lý (Python)**: Các giá trị pixel đầu ra được ghi lại vào file output_data.hex. Script hex_to_image.py sau đó sẽ đọc file này và tái tạo lại thành file ảnh kỹ thuật số để bạn có thể xem và so sánh trực quan.
+
+<img width="4700" height="3000" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/workflow3.png?raw=true" /> 
+
+***2 File Hex này sẽ được chạy dưới file hex_to_image để in ra ảnh***
+
+
