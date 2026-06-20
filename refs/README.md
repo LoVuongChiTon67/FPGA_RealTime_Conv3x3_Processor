@@ -4,3 +4,4 @@
 * **[Thuật toán học về ma trận nhân chập 3x3]** https://www.cl.cam.ac.uk/teaching/1617/AdvGraph/04_Advanced_image_proc.pdf
 * **[FPGA-Based Brain Tumor Detection from MRI Using 3x3 Convolution Soft IP Core with Stride 1]** https://www.youtube.com/watch?v=5VMVOeyQqiU&t=503s&pp=ygUbM3gzIGltYWdlIGNvbnZvbHVhdGlvbiBmcGdh
 * **[FPGA Implementation of Image Line Buffer to Split and reconstruct a 3x3 size of image pixel]** https://www.youtube.com/watch?v=E1i-o8glsgg&pp=ygUbM3gzIGltYWdlIGNvbnZvbHVhdGlvbiBmcGdh
+* **[Convolution là gi]** https://www.youtube.com/watch?v=KuXjwB4LzSA&t=882s&pp=ygUbM3gzIGltYWdlIGNvbnZvbHVhdGlvbiBmcGdh0gcJCT8LAYcqIYzv
