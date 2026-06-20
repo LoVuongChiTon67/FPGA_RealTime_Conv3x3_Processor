@@ -121,4 +121,8 @@ Hệ thống được thiết kế để xử lý ảnh theo quy trình thời g
 
 ## 6. Kết quả mô phỏng và kiểm chứng (Simulation & Verification)
 
+### 1. **Kết quả Waveform (Waveform Result)**
+Hình dưới đây thể hiện sự phối hợp nhịp nhàng giữa các tín hiệu điều khiển và dữ liệu:
+
+
 
