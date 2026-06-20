@@ -142,10 +142,10 @@ Sau khi mô phỏng hoàn tất, file dữ liệu đầu ra được script Pyth
     <td align="center">
       <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_original.png?raw=true" width="350" alt="Ảnh gốc Input"/>
       <br>
-      <b>Ảnh gốc (Input - Original 64x64)</b>
+      <b>Ảnh gốc (Input - Original)</b>
     </td>
     <td align="center">
-      <img src="image/output_sharpen.png" width="350" alt="Kết quả Sharpen"/>
+      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_grayscale.png?raw=true" width="350" alt="Kết quả Sharpen"/>
       <br>
       <b>Ảnh gốc (Input - Grayscale 64x64)</b>
     </td>
