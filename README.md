@@ -2,178 +2,178 @@
 
 --- 
 
-Dự án này tập trung vào việc thiết kế và hiện thực hóa bộ xử lý ảnh thời gian thực trên FPGA. Hệ thống sử dụng thuật toán 3x3 Convolution (Nhân chập) để thực hiện các bộ lọc ảnh phổ biến như Blur (Làm mờ) và Sharpening (Tăng độ sắc nét). Hệ thống được tối ưu hóa bằng kiến trúc Pipeline và Adder Tree để đạt tốc độ xử lý cao, đảm bảo mỗi pixel được xử lý trong mỗi chu kỳ clock.
+This project focuses on the design and implementation of a real-time image processor on an FPGA. The system utilizes a 3x3 Convolution algorithm to perform common image filters such as Blur and Sharpening. The system is optimized using a Pipeline architecture and an Adder Tree to achieve high processing speed, ensuring each pixel is processed in every clock cycle.
 
-## 1. Tổng quan hệ thống (System Overview)
-Hệ thống được thiết kế để xử lý ảnh theo quy trình thời gian thực. Luồng dữ liệu hoạt động như sau:
+## 1. System Overview
+The system is designed to process images in a real-time pipeline. The data flow operates as follows:
 
-* Đầu vào (Input): Một ảnh Grayscale (64x64 pixel) được chuyển đổi sang định dạng dữ liệu thô (txt/hex) bằng script Python. Dữ liệu này sau đó được nạp vào FPGA thông qua input_interface.
+* **Input:** A Grayscale image (64x64 pixels) is converted into raw data format (txt/hex) using a Python script. This data is then fed into the FPGA through the `input_interface`.
 
-* Xử lý (Processing): Dữ liệu được đưa qua các module line_buffer và window_3x3 để tạo ma trận 3x3. Tùy thuộc vào tín hiệu điều khiển, một trong hai module cnn_sharpening.v hoặc cnn_blur.v sẽ thực hiện tính toán Convolution trên các pixel này.
+* **Processing:** The data passes through the `line_buffer` and `window_3x3` modules to create a 3x3 matrix. Depending on the control signal, one of the two modules, `cnn_sharpening.v` or `cnn_blur.v`, will perform the Convolution calculation on these pixels.
 
-* Đầu ra (Output): Kết quả pixel sau xử lý được xuất ra từ top_module dưới dạng dữ liệu thô, sau đó được một script Python khác thu nhận và tái tạo lại thành file ảnh hiển thị được.
+* **Output:** The processed pixel result is output from the `top_module` as raw data, which is then captured by another Python script and reconstructed into a viewable image file.
 
-## 2. Sơ đồ khối tổng quát
+## 2. General Block Diagram
 
 <img width="5096" height="3839" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/Block_Diagram.png?raw=true" />
 
-## 3. Mục lục các module (Module Index)
+## 3. Module Index
 
-| # | Module | File | Vai trò |
+| # | Module | File | Role |
 |---|--------|------|---------|
-| 1 | `top_module` | `top_module.v` | Module top cấp cao nhất, kết nối toàn bộ hệ thống lên FPGA. |
-| 2 | `line_buffer` | `line_buffer.v` | Lưu trữ 2 dòng dữ liệu ảnh. Đây là module cực kỳ quan trọng để chuyển đổi dữ liệu dạng chuỗi (serial) thành ma trận 3x3. |
-| 3 | `window_3x3` | `window_3x3.v` |Trích xuất cửa sổ 3x3 pixel (p11 đến p33) từ Line Buffer để đưa vào lõi xử lý Convolution. 
-| 4 | `cnn_sharpening` | `cnn_sharpening.v` |Thực hiện phép nhân chập với Kernel làm sắc nét ảnh (Sharpening).
-| 5 | `cnn_blur` | `cnn_blur.v` |Thực hiện phép nhân chập với Kernel làm mờ ảnh (Blur).
-| 6 | `testbench_prj` | `testbench_prj.v` |Module dùng để mô phỏng, nạp ảnh từ Python và kiểm chứng dữ liệu đầu ra.
+| 1 | `top_module` | `top_module.v` | The highest-level top module, connecting the entire system on the FPGA. |
+| 2 | `line_buffer` | `line_buffer.v` | Stores 2 lines of image data. This is a crucial module for converting serial data into a 3x3 matrix. |
+| 3 | `window_3x3` | `window_3x3.v` | Extracts a 3x3 pixel window (p11 to p33) from the Line Buffer to feed into the Convolution processing core. |
+| 4 | `cnn_sharpening` | `cnn_sharpening.v` | Performs convolution with a Sharpening Kernel. |
+| 5 | `cnn_blur` | `cnn_blur.v` | Performs convolution with a Blurring Kernel. |
+| 6 | `testbench_prj` | `testbench_prj.v` | Module used for simulation, loading images from Python, and verifying output data. |
 
-## Danh sách tệp tin bổ trợ (External Files & Scripts)
-| # | Filename | Vai trò | Mô tả |
+## External Files & Scripts
+| # | Filename | Role | Description |
 |---|--------|------|---------|
-| 1 | `image_to_hex.py` | Tiền xử lý (Preprocessing) | Chuyển đổi ảnh 64x64 từ các định dạng thông thường (png) sang file .txt hoặc .hex chứa giá trị pixel để đưa vào testbench. |
-| 2 | `hex_to_image.py` | Hậu xử lý (Postprocessing) |Đọc file dữ liệu kết quả từ ModelSim, chuyển đổi lại thành mảng pixel và xuất ra file ảnh để so sánh chất lượng. |
-| 3 | `test_input.hex`  | Dữ liệu đầu vào | File chứa kết quả sau khi Convolution được ghi ra từ top_module trong quá trình mô phỏng. |
-| 4 | `ouput_data.hex` | Dữ liệu đầu ra | File chứa kết quả sau khi Convolution được ghi ra từ top_module trong quá trình mô phỏng. |
-| 5 | `image_source/`  | Thư mục ảnh gốc | Chứa các ảnh mẫu (Input) và ảnh sau khi xử lý (Output). |
+| 1 | `image_to_hex.py` | Preprocessing | Converts a 64x64 image from common formats (png) to a .txt or .hex file containing pixel values for the testbench. |
+| 2 | `hex_to_image.py` | Postprocessing | Reads the output data file from ModelSim, converts it back into a pixel array, and exports it as an image file for quality comparison. |
+| 3 | `test_input.hex`  | Input Data | File containing the result after Convolution written from the `top_module` during simulation. |
+| 4 | `ouput_data.hex` | Output Data | File containing the result after Convolution written from the `top_module` during simulation. |
+| 5 | `image_source/`  | Original Image Folder | Contains sample images (Input) and processed images (Output). |
 
-## 4. Chi tiết chân tín hiệu I/O từng module (Interface Specifications)
+## 4. Interface Specifications
 ### 4.1 `top_module`  
 
-| # | Gate | Type | Bit-width | Mô tả |
+| # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thống |
-| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi động lại toàn bộ mạch (active-high) |
-| 3 | `i_pixel` | Input | 8-bit | Dữ liệu pixel đầu vào (grayscale) |
-| 4 | `data_valid_in` | Input | 1-bit | Báo hiệu dữ liệu đầu vào hợp lệ |
-| 5 | `mode` | Input | 1-bit | Chọn chế độ: 0 (Sharpen), 1 (Blur) |
-| 6 | `o_pixel` | Output | 8-bit | Kết quả pixel đã xử lý |
-| 7 | `data_valid_out` | Output | 1-bit | Báo hiệu dữ liệu đầu ra hợp lệ |
+| 1 | `i_clk` | Input | 1-bit | System clock signal |
+| 2 | `i_reset` | Input | 1-bit | Resets the entire circuit (active-high) |
+| 3 | `i_pixel` | Input | 8-bit | Input pixel data (grayscale) |
+| 4 | `data_valid_in` | Input | 1-bit | Signals valid input data |
+| 5 | `mode` | Input | 1-bit | Selects mode: 0 (Sharpen), 1 (Blur) |
+| 6 | `o_pixel` | Output | 8-bit | Processed pixel result |
+| 7 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
 ### 4.2 `line_buffer`
-| # | Gate | Type | Bit-width | Mô tả |
+| # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thống |
-| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi động lại toàn bộ mạch (active-high) |
-| 3 | `i_pixel` | Input | 8-bit | Dữ liệu pixel đầu vào (grayscale) nhận từ `top_module` |
-| 4 | `q1` | Output | 8-bit | Dữ liệu hiện tại |
-| 4 | `q2` | Output | 8-bit | Dữ liệu dòng trên (đã trễ 1 dòng) |
-| 5 | `q3` | Output | 8-bit | Dữ liệu dòng dưới (đã trễ 2 dòng) |
+| 1 | `i_clk` | Input | 1-bit | System clock signal |
+| 2 | `i_reset` | Input | 1-bit | Resets the entire circuit (active-high) |
+| 3 | `i_pixel` | Input | 8-bit | Input pixel data (grayscale) received from `top_module` |
+| 4 | `q1` | Output | 8-bit | Current data |
+| 5 | `q2` | Output | 8-bit | Previous line data (delayed by 1 line) |
+| 6 | `q3` | Output | 8-bit | Data from 2 lines ago (delayed by 2 lines) |
 
 ### 4.3 `window_3x3`
-| # | Gate | Type | Bit-width | Mô tả |
+| # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thống |
-| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi động lại toàn bộ mạch (active-high) |
-| 3 | `q1`, `q2`, `q3` | Input | 8-bit | Dữ liệu đầu vào từ 3 hàng (Line Buffer)|
-| 4 | `data_valid_in` | Input | 1-bit | Báo hiệu dữ liệu đầu vào hợp lệ |
-| 5 | `p11...p33` | Input | 8-bit(x9) | 9 pixel tạo thành ma trận cửa sổ 3x3 |
+| 1 | `i_clk` | Input | 1-bit | System clock signal |
+| 2 | `i_reset` | Input | 1-bit | Resets the entire circuit (active-high) |
+| 3 | `q1`, `q2`, `q3` | Input | 8-bit | Input data from 3 lines (Line Buffer) |
+| 4 | `data_valid_in` | Input | 1-bit | Signals valid input data |
+| 5 | `p11...p33` | Input | 8-bit(x9) | 9 pixels forming the 3x3 window matrix |
 
 ### 4.4 `cnn_sharpening`
-| # | Gate | Type | Bit-width | Mô tả |
+| # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thông |
-| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi đọng toàn bộ mạch (active-high) |
-| 3 | `data_valid_in` | Input | 1-bit | Báo dữ liệu đầu vào hợp lệ |
-| 4 | `p11...p33` | Input | 8-bit(x9) | đưa ma trận 3x3 pixel vào convolution |
-| 5 | `o_pixel` | Output | 8-bit | đưa ra 1 pixel sau khi convolution (sharp) |
-| 6 | `data_valid_out` | Output | 1-bit | Báo dữ liệu ra hợp lệ |
+| 1 | `i_clk` | Input | 1-bit | System clock signal |
+| 2 | `i_reset` | Input | 1-bit | Resets the entire circuit (active-high) |
+| 3 | `data_valid_in` | Input | 1-bit | Signals valid input data |
+| 4 | `p11...p33` | Input | 8-bit(x9) | Inputs the 3x3 pixel matrix into the convolution |
+| 5 | `o_pixel` | Output | 8-bit | Outputs 1 pixel after convolution (sharp) |
+| 6 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
-### 4.5 `cnn_blur` 
+### 4.5 `cnn_blur`  
 
-| # | Gate | Type | Bit-width | Mô tả |
+| # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
-| 1 | `i_clk` | Input | 1-bit | Xung clock hệ thông |
-| 2 | `i_reset` | Input | 1-bit | Có vai trò khởi đọng toàn bộ mạch (active-high) |
-| 3 | `data_valid_in` | Input | 1-bit | Báo dữ liệu đầu vào hợp lệ |
-| 4 | `p11...p33` | Input | 8-bit(x9) | đưa ma trận 3x3 pixel vào convolution |
-| 5 | `o_pixel` | Output | 8-bit | đưa ra 1 pixel sau khi convolution (blur) |
-| 6 | `data_valid_out` | Output | 1-bit | Báo dữ liệu ra hợp lệ |
+| 1 | `i_clk` | Input | 1-bit | System clock signal |
+| 2 | `i_reset` | Input | 1-bit | Resets the entire circuit (active-high) |
+| 3 | `data_valid_in` | Input | 1-bit | Signals valid input data |
+| 4 | `p11...p33` | Input | 8-bit(x9) | Inputs the 3x3 pixel matrix into the convolution |
+| 5 | `o_pixel` | Output | 8-bit | Outputs 1 pixel after convolution (blur) |
+| 6 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
-## 5. Luồng hoạt động hệ thống (System Workflow)
+## 5. System Workflow
 
-### 1. **Chuẩn bị và nạp dữ liệu (Input Stage)**
-* **Tiền xử lý (Python)**: Ảnh gốc (png) được đưa qua script image_to_hex.py để chuyển đổi sang ma trận giá trị pixel 8-bit (0-255). Kết quả được lưu vào file input_data.hex.
+### 1. **Input Stage**
+* **Preprocessing (Python)**: The original image (png) is passed through the `image_to_hex.py` script to be converted into an 8-bit pixel value matrix (0-255). The result is saved to the `input_data.hex` file.
 
 <img width="4700" height="3000" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/workflow1.png?raw=true" /> 
 
-***Ảnh test được bỏ vào tệp có chứa 2 file python dùng để chuyển đổi dữ liệu ảnh***
+***The test image is placed in a folder containing 2 Python files used for image data conversion***
 
 ----
 
 <img width="4700" height="3000" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/workflow2.png?raw=true" /> 
 
 
-* **Nạp dữ liệu**: Trong quá trình mô phỏng (testbench_prj.v), file .hex này được đọc vào và đẩy tuần tự từng pixel qua cổng i_pixel của top_module tại mỗi sườn dương của xung clock (posedge i_clk). * _Dòng 46 trong file testbench_prj.v_
+* **Data Loading**: During simulation (`testbench_prj.v`), this `.hex` file is read and sequentially pushes each pixel through the `i_pixel` port of the `top_module` at every positive clock edge (`posedge i_clk`). * _Line 46 in the `testbench_prj.v` file_
 
-### 2. **Xử lý Convolution (Processing Stage)**
-* **Đệm dữ liệu**: Module linerbuffer.v nhận các pixel đơn lẻ, lưu trữ và dịch chuyển chúng qua các tầng ghi để tạo ra 2 dòng đệm (Line buffers).
-* **Tạo cửa sổ 3x3**:  Module window_3x3.v lấy dữ liệu từ linerbuffer và pixel hiện tại để trích xuất ra một cửa sổ ma trận $3 \times 3$ (gồm 9 giá trị pixel p11 đến p33).
-* **Tính toán nhân chập**: Cửa sổ $3 \times 3$ này được gửi tới một trong hai module cnn_sharpening.v hoặc cnn_blur.v (tùy vào chế độ mode). Tại đây, các pixel sẽ được nhân với hệ số Kernel tương ứng và cộng dồn qua cấu trúc cây cộng (Adder Tree) để tạo ra pixel kết quả cuối cùng.
+### 2. **Processing Stage**
+* **Data Buffering**: The `linerbuffer.v` module receives single pixels, stores, and shifts them through register stages to create 2 line buffers.
+* **3x3 Window Generation**: The `window_3x3.v` module takes data from the linebuffer and the current pixel to extract a $3 \times 3$ matrix window (consisting of 9 pixel values `p11` to `p33`).
+* **Convolution Calculation**: This $3 \times 3$ window is sent to either the `cnn_sharpening.v` or `cnn_blur.v` module (depending on the `mode`). Here, the pixels are multiplied by the corresponding Kernel coefficients and accumulated through an Adder Tree structure to generate the final resulting pixel.
 
-### 3. **Xuất và Tái tạo ảnh (Output Stage)**
-* **Đồng bộ hoá**: Kết quả sau khi tính toán được đưa qua output_controller, tại đây tín hiệu data_valid_out được kích hoạt để báo hiệu rằng dữ liệu tại o_pixel đã sẵn sàng.
-* **Hậu xử lý (Python)**: Các giá trị pixel đầu ra được ghi lại vào file output_data.hex. Script hex_to_image.py sau đó sẽ đọc file này và tái tạo lại thành file ảnh kỹ thuật số để bạn có thể xem và so sánh trực quan.
+### 3. **Output Stage**
+* **Synchronization**: The calculated result passes through the `output_controller`, where the `data_valid_out` signal is activated to indicate that the data at `o_pixel` is ready.
+* **Postprocessing (Python)**: The output pixel values are recorded in the `output_data.hex` file. The `hex_to_image.py` script then reads this file and reconstructs it into a digital image file so you can view and visually compare it.
 
 <img width="4700" height="3000" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/workflow3.png?raw=true" /> 
 
-***Hai File Hex này sẽ được chạy dưới file hex_to_image để in ra ảnh***
+***These two Hex files will be processed by the hex_to_image script to output the image***
 
-## 6. Kết quả mô phỏng và kiểm chứng (Simulation & Verification)
+## 6. Simulation & Verification
 
-### 1. **Kết quả Waveform (Waveform Result)**
-Hình dưới đây thể hiện sự phối hợp nhịp nhàng giữa các tín hiệu điều khiển và dữ liệu:
+### 1. **Waveform Result**
+The figure below demonstrates the seamless coordination between control signals and data:
 
-<img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/waveform1.png?raw=true" width="45%" align="left" alt="Ảnh 1" />
-<img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/waveform2.png?raw=true" width="45%" alt="Ảnh 2" />
+<img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/waveform1.png?raw=true" width="45%" align="left" alt="Image 1" />
+<img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/waveform2.png?raw=true" width="45%" alt="Image 2" />
 <div style="clear: both;"></div>
 
-* **`i_clk` / `i_reset`**: Các tín hiệu nguồn điều khiển toàn bộ trạng thái đồng bộ của mạch tích hợp.
-* **`data_valid_in`**: Được kích hoạt (*High*) báo hiệu luồng pixel đầu vào đã bắt đầu "chảy" vào module `linerbuffer`.
-* **`p11` đến `p33`**: Giá trị của 9 pixel liên tiếp được trích xuất thành công tạo thành cửa sổ trượt $3 \times 3$ tại mỗi chu kỳ clock.
-* **`o_pixel`**: Pixel kết quả tính toán đầu ra sau khi đi qua cấu trúc **Adder Tree** (Cây cộng) tối ưu.
-* **`data_valid_out`**: Tín hiệu này chuyển lên mức cao (*High*) để báo hiệu pixel đầu ra đã ổn định và hợp lệ, sẵn sàng để ghi lại.
+* **`i_clk` / `i_reset`**: Source signals controlling the entire synchronous state of the integrated circuit.
+* **`data_valid_in`**: Activated (*High*) to signal that the input pixel stream has started "flowing" into the `linerbuffer` module.
+* **`p11` to `p33`**: The values of 9 consecutive pixels successfully extracted to form a $3 \times 3$ sliding window at each clock cycle.
+* **`o_pixel`**: The resulting output pixel after passing through the optimized **Adder Tree** structure.
+* **`data_valid_out`**: This signal transitions to a high level (*High*) to indicate that the output pixel is stable and valid, ready to be recorded.
 
-### 2. **Kết quả trực quan (Visual Results)**
-Sau khi mô phỏng hoàn tất, file dữ liệu đầu ra được script Python `hex_to_image.py` đọc và tái tạo lại thành cấu trúc ảnh kỹ thuật số để đối chiếu trực quan:
+### 2. **Visual Results**
+After the simulation is complete, the output data file is read by the Python script `hex_to_image.py` and reconstructed into a digital image structure for visual comparison:
 
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_original.png?raw=true" width="350" alt="Ảnh gốc Input"/>
+      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_original.png?raw=true" width="350" alt="Original Input Image"/>
       <br>
-      <b>Ảnh gốc (Input - Original)</b>
+      <b>Original Image (Input - Original)</b>
     </td>
     <td align="center">
-      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_grayscale.png?raw=true" width="350" alt="Kết quả Sharpen"/>
+      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/input_grayscale.png?raw=true" width="350" alt="Grayscale Input Image"/>
       <br>
-      <b>Ảnh gốc (Input - Grayscale 64x64)</b>
+      <b>Original Image (Input - Grayscale 64x64)</b>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/output_sharpen.png?raw=true" width="350" alt="Ảnh gốc Input"/>
+      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/output_sharpen.png?raw=true" width="350" alt="Sharpen Result"/>
       <br>
-      <b>Kết quả sau bộ lọc <i>Sharpening</i> (FPGA)</b> 
+      <b>Result after <i>Sharpening</i> filter (FPGA)</b> 
     </td>
     <td align="center">
-      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/output_blur.png?raw=true" width="350" alt="Kết quả Blur"/>
+      <img src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/output_blur.png?raw=true" width="350" alt="Blur Result"/>
       <br>
-      <b>Kết quả sau bộ lọc <i>Blurring</i> (FPGA)</b>
+      <b>Result after <i>Blurring</i> filter (FPGA)</b>
     </td>
   </tr>
 </table>
 
 ----
 
-## 7. Đánh giá và Nhận xét (Evaluation & Analysis)
-Dựa trên kết quả mô phỏng phần cứng thu được và hình ảnh tái tạo qua script Python, hệ thống xử lý ảnh nhân chập $3 \times 3$ trên FPGA đạt được các kết quả thực nghiệm sau:
-* **Chức năng tiền xử lý (Grayscale Conversion)**: Ảnh gốc màu không gian RGB đã được hạ mẫu (downsample) về kích thước $64 \times 64$ và chuyển đổi thành công sang không gian xám (Grayscale 8-bit). Cấu trúc hình khối, các đường nét của bông hoa vẫn được giữ nguyên vẹn, đảm bảo mượt mà cho luồng dữ liệu nạp vào mạch nạp thông qua cổng i_pixel.
-* **Hiệu năng bộ lọc làm sắc nét (Sharpening Filter)**: Các đường biên, góc cạnh, phần gai và chi tiết vân trên cánh hoa được tăng cường độ tương phản rất mạnh (xuất hiện các vùng biên trắng/đen rõ rệt).
-  >  _Giải thích kỹ thuật_: Kết quả này minh chứng lõi tính toán cnn_sharpening đã thực thi chính xác ma trận hệ số Kernel (với trọng số cao ở tâm và các hệ số âm ở xung quanh). Các vùng có sự thay đổi đột ngột về ma trận điểm ảnh được khuếch đại biên độ, chứng minh cấu trúc cây cộng (Adder Tree) không bị tràn số (overflow) nhờ thuật toán bão hòa dữ liệu (clipping logic) hoạt động chính xác.
-* **Hiệu năng bộ lọc làm mờ (Blurring Filter)**: Toàn bộ chi tiết nhiễu gai góc ở biên ảnh bị triệt tiêu, tổng thể bức ảnh trở nên mịn màng và mờ hơn rõ rệt so với ảnh Grayscale gốc.
-  > _Giải thích kỹ thuật_: Module cnn_blur đã thực hiện đúng bản chất của một bộ lọc thông thấp (Low-pass Filter), cào bằng sự chênh lệch năng lượng giữa các pixel lân cận trong cửa sổ trượt $3 \times 3$.
-* **Tính chính xác và Đồng bộ của Hệ thống**: Tín hiệu điều khiển luồng dữ liệu (data_valid_in và data_valid_out) hoạt động hoàn hảo dưới chu kỳ xung nhịp i_clk. Hình ảnh không bị méo tuyến tính hay lệch hàng/cột, khẳng định việc quản lý địa chỉ trượt pixel của module linerbuffer và window_3x3 hoàn toàn đồng bộ, không xảy ra hiện tượng mất mát dữ liệu tại biên ảnh (Boundary pixels).
+## 7. Evaluation & Analysis
+Based on the hardware simulation results obtained and the images reconstructed via the Python script, the $3 \times 3$ convolution image processing system on the FPGA achieves the following empirical results:
+* **Preprocessing Function (Grayscale Conversion)**: The original color image in RGB space has been downsampled to $64 \times 64$ dimensions and successfully converted to 8-bit Grayscale space. The structural blocks and the outlines of the flower remain intact, ensuring a smooth data stream fed into the circuit via the `i_pixel` port.
+* **Sharpening Filter Performance**: The borders, edges, spikes, and vein details on the flower petals are highly contrast-enhanced (resulting in distinct black/white boundary regions).
+  > _Technical Explanation_: This result proves that the `cnn_sharpening` calculation core has correctly executed the Kernel coefficient matrix (with high weight at the center and negative coefficients surrounding it). Areas with sudden changes in the pixel matrix have their amplitude amplified, proving that the Adder Tree structure does not overflow thanks to the clipping logic operating correctly.
+* **Blurring Filter Performance**: All sharp noise details at the image borders are eliminated, and the overall image becomes noticeably smoother and blurrier compared to the original Grayscale image.
+  > _Technical Explanation_: The `cnn_blur` module has correctly performed the essence of a Low-pass Filter, leveling the energy difference between adjacent pixels in the $3 \times 3$ sliding window.
+* **System Accuracy and Synchronization**: The data flow control signals (`data_valid_in` and `data_valid_out`) operate perfectly under the `i_clk` clock cycle. The image does not suffer from linear distortion or row/column misalignment, affirming that the pixel sliding address management of the `linerbuffer` and `window_3x3` modules is completely synchronized, with no data loss occurring at the boundary pixels.
 
-  ### **Kết luận**
-   Thiết kế phần cứng trên FPGA đáp ứng hoàn hảo yêu cầu xử lý ảnh thời gian thực, cho kết quả trực quan chính xác tuyệt đối so với thuật toán lý thuyết.
+  ### **Conclusion**
+   The hardware design on the FPGA perfectly meets the requirements of real-time image processing, yielding visually accurate results that strictly align with the theoretical algorithm.
