@@ -56,7 +56,7 @@ cnn_sharpening cnn_sharpening_inst (
         
         
         .o_pixel(sharp_pixel),
-        .data_valid_out(data_valid_out)
+    .data_valid_out(sharp_valid)
     );
 
 cnn_blur cnn_blur_inst (
@@ -71,7 +71,7 @@ cnn_blur cnn_blur_inst (
         
         
         .o_pixel(blur_pixel),
-        .data_valid_out(data_valid_out)
+    .data_valid_out(blur_valid)
     );
 
 assign o_pixel = (mode) ? blur_pixel : sharp_pixel;
