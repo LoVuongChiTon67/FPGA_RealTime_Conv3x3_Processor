@@ -1,11 +1,11 @@
 # FPGA_RealTime_Conv3x3_Processor
 
 --- 
-## Project Description
+##1 Project Description
 
 This project focuses on the design and implementation of a real-time image processor on an FPGA. The system utilizes a 3x3 Convolution algorithm to perform common image filters such as Blur and Sharpening. The system is optimized using a Pipeline architecture and an Adder Tree to achieve high processing speed, ensuring each pixel is processed in every clock cycle.
 
-## 1. System Overview
+## 2. System Overview
 The system is designed to process images in a real-time pipeline. The data flow operates as follows:
 
 * **Input:** A Grayscale image (64x64 pixels) is converted into raw data format (txt/hex) using a Python script. This data is then fed into the FPGA through the `input_interface`.
@@ -14,11 +14,11 @@ The system is designed to process images in a real-time pipeline. The data flow 
 
 * **Output:** The processed pixel result is output from the `top_module` as raw data, which is then captured by another Python script and reconstructed into a viewable image file.
 
-## 2. General Block Diagram
+## 3. General Block Diagram
 
 <img width="5096" height="3839" alt="image" src="https://github.com/LoVuongChiTon67/FPGA_RealTime_Conv3x3_Processor/blob/main/image/Block_Diagram.png?raw=true" />
 
-## 3. Module Index
+## 4. Module Index
 
 | # | Module | File | Role |
 |---|--------|------|---------|
@@ -38,8 +38,8 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 4 | `ouput_data.hex` | Output Data | File containing the result after Convolution written from the `top_module` during simulation. |
 | 5 | `image_source/`  | Original Image Folder | Contains sample images (Input) and processed images (Output). |
 
-## 4. Interface Specifications
-### 4.1 `top_module`  
+## 5. Interface Specifications
+### 5.1 `top_module`  
 
 | # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
@@ -51,7 +51,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 6 | `o_pixel` | Output | 8-bit | Processed pixel result |
 | 7 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
-### 4.2 `line_buffer`
+### 5.2 `line_buffer`
 | # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
 | 1 | `i_clk` | Input | 1-bit | System clock signal |
@@ -61,7 +61,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 5 | `q2` | Output | 8-bit | Previous line data (delayed by 1 line) |
 | 6 | `q3` | Output | 8-bit | Data from 2 lines ago (delayed by 2 lines) |
 
-### 4.3 `window_3x3`
+### 5.3 `window_3x3`
 | # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
 | 1 | `i_clk` | Input | 1-bit | System clock signal |
@@ -70,7 +70,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 4 | `data_valid_in` | Input | 1-bit | Signals valid input data |
 | 5 | `p11...p33` | Input | 8-bit(x9) | 9 pixels forming the 3x3 window matrix |
 
-### 4.4 `cnn_sharpening`
+### 5.4 `cnn_sharpening`
 | # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
 | 1 | `i_clk` | Input | 1-bit | System clock signal |
@@ -80,7 +80,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 5 | `o_pixel` | Output | 8-bit | Outputs 1 pixel after convolution (sharp) |
 | 6 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
-### 4.5 `cnn_blur`  
+### 5.5 `cnn_blur`  
 
 | # | Gate | Type | Bit-width | Description |
 |---|--------|------|-----|----------|
@@ -91,7 +91,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 | 5 | `o_pixel` | Output | 8-bit | Outputs 1 pixel after convolution (blur) |
 | 6 | `data_valid_out` | Output | 1-bit | Signals valid output data |
 
-## 5. System Workflow
+## 6. System Workflow
 
 ### 1. **Input Stage**
 * **Preprocessing (Python)**: The original image (png) is passed through the `image_to_hex.py` script to be converted into an 8-bit pixel value matrix (0-255). The result is saved to the `input_data.hex` file.
@@ -120,7 +120,7 @@ The system is designed to process images in a real-time pipeline. The data flow 
 
 ***These two Hex files will be processed by the hex_to_image script to output the image***
 
-## 6. Simulation & Verification
+## 7. Simulation & Verification
 
 ### 1. **Waveform Result**
 The figure below demonstrates the seamless coordination between control signals and data:
@@ -167,7 +167,7 @@ After the simulation is complete, the output data file is read by the Python scr
 
 ----
 
-## 7. Evaluation & Analysis
+## 8. Evaluation & Analysis
 Based on the hardware simulation results obtained and the images reconstructed via the Python script, the $3 \times 3$ convolution image processing system on the FPGA achieves the following empirical results:
 * **Preprocessing Function (Grayscale Conversion)**: The original color image in RGB space has been downsampled to $64 \times 64$ dimensions and successfully converted to 8-bit Grayscale space. The structural blocks and the outlines of the flower remain intact, ensuring a smooth data stream fed into the circuit via the `i_pixel` port.
 * **Sharpening Filter Performance**: The borders, edges, spikes, and vein details on the flower petals are highly contrast-enhanced (resulting in distinct black/white boundary regions).
@@ -176,5 +176,4 @@ Based on the hardware simulation results obtained and the images reconstructed v
   > _Technical Explanation_: The `cnn_blur` module has correctly performed the essence of a Low-pass Filter, leveling the energy difference between adjacent pixels in the $3 \times 3$ sliding window.
 * **System Accuracy and Synchronization**: The data flow control signals (`data_valid_in` and `data_valid_out`) operate perfectly under the `i_clk` clock cycle. The image does not suffer from linear distortion or row/column misalignment, affirming that the pixel sliding address management of the `linerbuffer` and `window_3x3` modules is completely synchronized, with no data loss occurring at the boundary pixels.
 
-  ### **Conclusion**
-   The hardware design on the FPGA perfectly meets the requirements of real-time image processing, yielding visually accurate results that strictly align with the theoretical algorithm.
+## 9. Future Work
